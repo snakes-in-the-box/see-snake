@@ -1,0 +1,16 @@
+language: scala
+
+scala:
+  - 2.11.2
+
+script:
+   - sbt ++$TRAVIS_SCALA_VERSION test
+
+notifications:
+  webhooks:
+    urls:
+      - https://webhooks.gitter.im/e/0c0d5edd8b2978288b14
+    on_success: always  # options: [always|never|change] default: always
+    on_failure: always  # options: [always|never|change] default: always
+    on_start: never     # options: [always|never|change] default: always
+  email: false
