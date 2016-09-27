@@ -5,4 +5,4 @@
   <img src="https://github.com/snakes-in-the-box/see-snake/blob/master/logo.png">
 </p>
 
-Please see wiki for more information.
+Please see wiki for more information and design.
