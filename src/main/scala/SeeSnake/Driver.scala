@@ -12,12 +12,9 @@ import org.deeplearning4j.optimize.listeners.ScoreIterationListener
 import org.nd4j.linalg.api.buffer.DataBuffer
 import org.nd4j.linalg.factory.Nd4j
 import org.nd4j.linalg.lossfunctions.LossFunctions
-import org.slf4j.{Logger, LoggerFactory}
 
 
 object Driver {
-
-  lazy val log: Logger = LoggerFactory.getLogger(Driver.getClass)
 
   def main(args: Array[String]) = {
     Nd4j.dtype = DataBuffer.Type.DOUBLE
@@ -31,11 +28,11 @@ object Driver {
     val iterations = 1
     val seed = 123
 
-    log.info("Load data....")
-    val mnistTrain = new MnistDataSetIterator(batchSize,true,12345)
-    val mnistTest = new MnistDataSetIterator(batchSize,false,12345)
+    println("Load data....")
+    val mnistTrain = new MnistDataSetIterator(batchSize, true, 12345)
+    val mnistTest = new MnistDataSetIterator(batchSize, false, 12345)
 
-    log.info("Build model....")
+    println("Build model....")
     val builder: MultiLayerConfiguration.Builder = new NeuralNetConfiguration.Builder()
       .seed(seed)
       .iterations(iterations)
@@ -53,8 +50,8 @@ object Driver {
         .activation("identity")
         .build())
       .layer(1, new SubsamplingLayer.Builder(SubsamplingLayer.PoolingType.MAX)
-        .kernelSize(2,2)
-        .stride(2,2)
+        .kernelSize(2, 2)
+        .stride(2, 2)
         .build())
       .layer(2, new ConvolutionLayer.Builder(5, 5)
         //Note that nIn needed be specified in later layers
@@ -63,8 +60,8 @@ object Driver {
         .activation("identity")
         .build())
       .layer(3, new SubsamplingLayer.Builder(SubsamplingLayer.PoolingType.MAX)
-        .kernelSize(2,2)
-        .stride(2,2)
+        .kernelSize(2, 2)
+        .stride(2, 2)
         .build())
       .layer(4, new DenseLayer.Builder().activation("relu")
         .nOut(500).build())
@@ -75,30 +72,30 @@ object Driver {
       .backprop(true).pretrain(false)
 
     // The builder needs the dimensions of the image along with the number of channels. these are 28x28 images in one channel
-    new ConvolutionLayerSetup(builder,28,28,1)
+    new ConvolutionLayerSetup(builder, 28, 28, 1)
 
     val conf: MultiLayerConfiguration = builder.build()
 
     val model: MultiLayerNetwork = new MultiLayerNetwork(conf)
     model.init()
 
-    log.info("Train model....")
+    println("Train model....")
     model.setListeners(new ScoreIterationListener(1))
     (0 until nEpochs).foreach { i =>
       model.fit(mnistTrain)
-      log.info("*** Completed epoch {} ***", i)
+      println("*** Completed epoch {} ***", i)
 
-      log.info("Evaluate model....")
+      println("Evaluate model....")
       val eval = new Evaluation(outputNum)
-      while(mnistTest.hasNext){
+      while (mnistTest.hasNext) {
         val ds = mnistTest.next()
         val output = model.output(ds.getFeatureMatrix, false)
         eval.eval(ds.getLabels, output)
       }
-      log.info(eval.stats())
+      println(eval.stats())
       mnistTest.reset()
     }
-    log.info("****************Example finished********************")
+    println("****************Example finished********************")
   }
 
 }
