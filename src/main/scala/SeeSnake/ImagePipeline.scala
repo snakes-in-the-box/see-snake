@@ -13,7 +13,7 @@ import org.deeplearning4j.datasets.datavec.RecordReaderDataSetIterator
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator
 
 
-class ImagePipeline {
+object ImagePipeline {
 
 
   protected final val allowedExtensions: Array[String] = BaseImageLoader.ALLOWED_FORMATS
@@ -22,45 +22,26 @@ class ImagePipeline {
 
   final val randNumGen: Random = new Random(seed)
 
-  protected val height = 50
-  protected val width = 50
+  protected val height = 32
+  protected val width = 32
   protected val channels = 3
-  protected val numExamples = 80
-  protected val outputNum = 4
+  protected val outputNum = 10
 
-  def main(args: Array[String]) {
+  def mario(path:String):(DataSetIterator,DataSetIterator) ={
 
-    val parentDir: File = new File(System.getProperty("user.dir"), "dl4j-examples/src/main/resources/DataExamples/ImagePipeline/")
+    val parentDir: File = new File(System.getProperty("user.dir"), path)
     val filesInDir: FileSplit = new FileSplit(parentDir, allowedExtensions, randNumGen)
     val labelMaker: ParentPathLabelGenerator = new ParentPathLabelGenerator()
     val pathFilter: BalancedPathFilter = new BalancedPathFilter(randNumGen, allowedExtensions, labelMaker)
     val filesInDirSplit: Array[InputSplit] = filesInDir.sample(pathFilter, 80, 20)
     val trainData: InputSplit = filesInDirSplit(0)
     val testData: InputSplit = filesInDirSplit(1)
-    val recordReader: ImageRecordReader = new ImageRecordReader(height, width, channels, labelMaker)
-
-    //val transform: ImageTransform = new MultiImageTransform(randNumGen, new ShowImageTransform("Display - before "))
-
-    recordReader.initialize(trainData)
-    var dataIter: DataSetIterator = new RecordReaderDataSetIterator(recordReader, 10, 1, outputNum)
-    while (dataIter.hasNext) {
-      val ds = dataIter.next()
-      println(ds)
-      try {
-        Thread.sleep(3000);
-      } catch {
-        case ex: InterruptedException =>
-          Thread.currentThread().interrupt()
-      }
-    }
-    recordReader.reset()
-
-    recordReader.initialize(trainData)
-    dataIter = new RecordReaderDataSetIterator(recordReader, 10, 1, outputNum)
-    while (dataIter.hasNext) {
-      val ds = dataIter.next()
-    }
-    recordReader.reset()
-
+    val recordTest: ImageRecordReader = new ImageRecordReader(height, width, channels, labelMaker)
+    val recordTrain: ImageRecordReader = new ImageRecordReader(height, width, channels, labelMaker)
+    recordTest.initialize(testData)
+    recordTrain.initialize(trainData)
+    val dataTest: DataSetIterator = new RecordReaderDataSetIterator(recordTest, 10, 1, outputNum)
+    val dataTrain: DataSetIterator = new RecordReaderDataSetIterator(recordTrain, 10, 1, outputNum)
+    (dataTest,dataTrain)
   }
 }

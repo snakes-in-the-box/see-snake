@@ -28,9 +28,6 @@ object Driver {
     val iterations = 1
     val seed = 123
 
-    println("Load data....")
-    val mnistTrain: MnistDataSetIterator = new MnistDataSetIterator(batchSize, true, 12345)
-    val mnistTest: MnistDataSetIterator = new MnistDataSetIterator(batchSize, false, 12345)
 
     println("Build model....")
     val builder: MultiLayerConfiguration.Builder = new NeuralNetConfiguration.Builder()
@@ -78,6 +75,10 @@ object Driver {
 
     val model: MultiLayerNetwork = new MultiLayerNetwork(conf)
     model.init()
+
+
+
+
 
     println("Train model....")
     model.setListeners(new ScoreIterationListener(1))
