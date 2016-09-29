@@ -62,7 +62,7 @@ object Driver {
         .stride(2, 2)
         .build())
       .layer(4, new DenseLayer.Builder().activation("relu")
-        .nOut(500).build())
+        .nOut(512).build())
       .layer(5, new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
         .nOut(outputNum)
         .activation("softmax")
