@@ -9,7 +9,7 @@ libraryDependencies ++= Seq(
 
   "commons-io" % "commons-io" % "2.4",
 
-  "com.google.guava" % "guava" % "18.0",
+  "com.google.guava" % "guava" % "19.0",
 
   "org.bytedeco" % "javacv" % "1.2",
 
