@@ -40,8 +40,8 @@ object ImagePipeline {
       val recordTrain: ImageRecordReader = new ImageRecordReader(height, width, channels, labelMaker)
       recordTest.initialize(testData)
       recordTrain.initialize(trainData)
-      val dataTest: DataSetIterator = new RecordReaderDataSetIterator(recordTest, 10)
-      val dataTrain: DataSetIterator = new RecordReaderDataSetIterator(recordTrain, 10)
+      val dataTest: DataSetIterator = new RecordReaderDataSetIterator(recordTest, 10, 1, outputNum)
+      val dataTrain: DataSetIterator = new RecordReaderDataSetIterator(recordTrain, 10, 1, outputNum)
       (dataTrain, dataTest)
     }catch {
       case ex:Exception => println(ex.toString)

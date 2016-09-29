@@ -21,12 +21,12 @@ object Driver {
     Nd4j.factory().setDType(DataBuffer.Type.DOUBLE)
     Nd4j.ENFORCE_NUMERICAL_STABILITY = true
 
-    val nChannels = 1
+    val nChannels = 3
     val outputNum = 10
     val batchSize = 64
     val nEpochs = 10
     val iterations = 1
-    val seed = 123
+    val seed = 12345
 
 
     println("Build model....")
