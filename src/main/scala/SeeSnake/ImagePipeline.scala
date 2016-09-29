@@ -42,6 +42,6 @@ object ImagePipeline {
     recordTrain.initialize(trainData)
     val dataTest: DataSetIterator = new RecordReaderDataSetIterator(recordTest, 10, 1, outputNum)
     val dataTrain: DataSetIterator = new RecordReaderDataSetIterator(recordTrain, 10, 1, outputNum)
-    (dataTest,dataTrain)
+    (dataTrain,dataTest)
   }
 }

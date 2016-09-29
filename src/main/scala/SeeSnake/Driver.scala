@@ -69,7 +69,7 @@ object Driver {
       .backprop(true).pretrain(false)
 
     // The builder needs the dimensions of the image along with the number of channels. these are 28x28 images in one channel
-    new ConvolutionLayerSetup(builder, 28, 28, 1)
+    new ConvolutionLayerSetup(builder, 32, 32, 3)
 
     val conf: MultiLayerConfiguration = builder.build()
 
@@ -77,24 +77,24 @@ object Driver {
     model.init()
 
 
-
+    val data = ImagePipeline.mario("/home/brad/Documents/digits_images/cifar10/train/")
 
 
     println("Train model....")
     model.setListeners(new ScoreIterationListener(1))
     (0 until nEpochs).foreach { i =>
-      model.fit(mnistTrain)
+      model.fit(data._1)
       println("*** Completed epoch {} ***", i)
 
       println("Evaluate model....")
       val eval = new Evaluation(outputNum)
-      while (mnistTest.hasNext) {
-        val ds = mnistTest.next()
+      while (data._2.hasNext) {
+        val ds = data._2.next()
         val output = model.output(ds.getFeatureMatrix, false)
         eval.eval(ds.getLabels, output)
       }
       println(eval.stats())
-      mnistTest.reset()
+      data._2.reset()
     }
     println("****************Example finished********************")
   }
