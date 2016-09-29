@@ -43,7 +43,8 @@ object Driver {
         //nIn and nOut specify depth. nIn here is the nChannels and nOut is the number of filters to be applied
         .nIn(nChannels)
         .stride(1, 1)
-        .nOut(20)
+        .padding(2)
+        .nOut(24)
         .activation("identity")
         .build())
       .layer(1, new SubsamplingLayer.Builder(SubsamplingLayer.PoolingType.MAX)
