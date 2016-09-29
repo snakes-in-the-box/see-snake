@@ -40,7 +40,7 @@ object Driver {
       .updater(Updater.NESTEROVS).momentum(0.9)
       .list()
       .layer(0, new ConvolutionLayer.Builder(5, 5)
-        //nIn and nOut specify depth. nIn here is the nChannels and nOut is the number of filters to be applied
+        //nIn and nOut specify depth. nIn here is the nChannels and nOut is the # of filters to be applied
         .nIn(nChannels)
         .stride(1, 1)
         .padding(2)
