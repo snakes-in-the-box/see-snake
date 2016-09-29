@@ -9,6 +9,7 @@ import org.deeplearning4j.nn.conf.{MultiLayerConfiguration, NeuralNetConfigurati
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork
 import org.deeplearning4j.nn.weights.WeightInit
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener
+import org.deeplearning4j.ui.weights.HistogramIterationListener
 import org.nd4j.linalg.api.buffer.DataBuffer
 import org.nd4j.linalg.factory.Nd4j
 import org.nd4j.linalg.lossfunctions.LossFunctions
@@ -24,7 +25,7 @@ object Driver {
     val nChannels = 3
     val outputNum = 10
     val batchSize = 64
-    val nEpochs = 10
+    val nEpochs = 5
     val iterations = 1
     val seed = 12345
 
@@ -34,7 +35,7 @@ object Driver {
       .seed(seed)
       .iterations(iterations)
       .regularization(true).l2(0.0005)
-      .learningRate(0.01)
+      .learningRate(0.005)
       .weightInit(WeightInit.XAVIER)
       .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
       .updater(Updater.NESTEROVS).momentum(0.9)
@@ -80,7 +81,7 @@ object Driver {
     val data = ImagePipeline.pipeline("/home/brad/Documents/digits_images/cifar10/train/")
 
     println("Train model....")
-    model.setListeners(new ScoreIterationListener(1))
+    model.setListeners(new HistogramIterationListener(1))
     (0 until nEpochs).foreach { i =>
       model.fit(data._1)
       println("*** Completed epoch {} ***", i)
