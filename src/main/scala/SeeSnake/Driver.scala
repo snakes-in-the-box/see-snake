@@ -27,6 +27,7 @@ object Driver {
     val nEpochs = 10
     val iterations = 1
     val seed = 12345
+    val learnRate = .01
 
 
     println("Build model....")
@@ -34,7 +35,7 @@ object Driver {
       .seed(seed)
       .iterations(iterations)
       .regularization(true).l2(0.0005)
-      .learningRate(0.01)
+      .learningRate(learnRate)
       .weightInit(WeightInit.XAVIER)
       .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
       .updater(Updater.NESTEROVS).momentum(0.9)
