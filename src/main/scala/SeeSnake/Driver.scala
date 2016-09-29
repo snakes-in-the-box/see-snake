@@ -77,8 +77,7 @@ object Driver {
     model.init()
 
 
-    val data = ImagePipeline.mario("/home/brad/Documents/digits_images/cifar10/train/")
-
+    val data = ImagePipeline.pipeline("/home/brad/Documents/digits_images/cifar10/train/")
 
     println("Train model....")
     model.setListeners(new ScoreIterationListener(1))
