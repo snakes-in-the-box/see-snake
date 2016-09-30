@@ -45,7 +45,7 @@ object Driver {
         .nIn(nChannels)
         .stride(1, 1)
         .padding(2)
-        .nOut(24)
+        .nOut(32)
         .activation("relu")
         .dropOut(dropoutPercent)
         .build())
@@ -56,7 +56,7 @@ object Driver {
       .layer(2, new ConvolutionLayer.Builder(5, 5)
         //Note that nIn needed be specified in later layers
         .stride(1, 1)
-        .nOut(48)
+        .nOut(64)
         .activation("relu")
         .dropOut(dropoutPercent)
         .build())
