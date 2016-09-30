@@ -27,7 +27,7 @@ object Driver {
     val iterations = 1
     val seed = 12345
     val learnRate = .01
-    val dropoutPercent = .1
+    val dropOutRetainProbability = .9
 
 
     println("Build model....")
@@ -47,7 +47,7 @@ object Driver {
         .padding(2)
         .nOut(32)
         .activation("relu")
-        .dropOut(dropoutPercent)
+        .dropOut(dropOutRetainProbability)
         .build())
       .layer(1, new SubsamplingLayer.Builder(SubsamplingLayer.PoolingType.MAX)
         .kernelSize(2, 2)
@@ -58,7 +58,7 @@ object Driver {
         .stride(1, 1)
         .nOut(64)
         .activation("relu")
-        .dropOut(dropoutPercent)
+        .dropOut(dropOutRetainProbability)
         .build())
       .layer(3, new SubsamplingLayer.Builder(SubsamplingLayer.PoolingType.MAX)
         .kernelSize(2, 2)
@@ -68,7 +68,7 @@ object Driver {
         .stride(1,1)
         .nOut(128)
         .activation("relu")
-        .dropOut(dropoutPercent)
+        .dropOut(dropOutRetainProbability)
         .build())
       .layer(5, new SubsamplingLayer.Builder(SubsamplingLayer.PoolingType.MAX)
         .kernelSize(2, 2)
@@ -76,10 +76,10 @@ object Driver {
         .build())
       .layer(6, new DenseLayer.Builder().activation("relu")
         .nOut(1024)
-        .dropOut(dropoutPercent).build())
+        .dropOut(dropOutRetainProbability).build())
       .layer(7, new DenseLayer.Builder().activation("relu")
         .nOut(512)
-          .dropOut(dropoutPercent).build())
+          .dropOut(dropOutRetainProbability).build())
       .layer(8, new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
         .nOut(outputNum)
         .activation("softmax")
