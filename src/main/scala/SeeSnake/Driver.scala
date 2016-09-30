@@ -1,6 +1,5 @@
 package SeeSnake
 
-import org.deeplearning4j.datasets.iterator.impl.MnistDataSetIterator
 import org.deeplearning4j.eval.Evaluation
 import org.deeplearning4j.nn.api.OptimizationAlgorithm
 import org.deeplearning4j.nn.conf.layers.setup.ConvolutionLayerSetup
@@ -28,6 +27,7 @@ object Driver {
     val iterations = 1
     val seed = 12345
     val learnRate = .01
+    val dropoutPercent = .1
 
 
     println("Build model....")
@@ -47,6 +47,7 @@ object Driver {
         .padding(2)
         .nOut(24)
         .activation("relu")
+        .dropOut(dropoutPercent)
         .build())
       .layer(1, new SubsamplingLayer.Builder(SubsamplingLayer.PoolingType.MAX)
         .kernelSize(2, 2)
@@ -57,6 +58,7 @@ object Driver {
         .stride(1, 1)
         .nOut(48)
         .activation("relu")
+        .dropOut(dropoutPercent)
         .build())
       .layer(3, new SubsamplingLayer.Builder(SubsamplingLayer.PoolingType.MAX)
         .kernelSize(2, 2)
