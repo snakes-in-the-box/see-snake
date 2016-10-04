@@ -1,5 +1,7 @@
 package SeeSnake
 
+import org.bytedeco.javacpp.opencv_shape.HistogramCostExtractor
+import org.deeplearning4j.datasets.iterator.impl.MnistDataSetIterator
 import org.deeplearning4j.eval.Evaluation
 import org.deeplearning4j.nn.api.OptimizationAlgorithm
 import org.deeplearning4j.nn.conf.layers.setup.ConvolutionLayerSetup
@@ -8,6 +10,7 @@ import org.deeplearning4j.nn.conf.{MultiLayerConfiguration, NeuralNetConfigurati
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork
 import org.deeplearning4j.nn.weights.WeightInit
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener
+import org.deeplearning4j.ui.weights.HistogramIterationListener
 import org.nd4j.linalg.api.buffer.DataBuffer
 import org.nd4j.linalg.factory.Nd4j
 import org.nd4j.linalg.lossfunctions.LossFunctions
@@ -98,7 +101,7 @@ object Driver {
     val data = ImagePipeline.pipeline("/home/brad/Documents/digits_images/cifar10/train/")
 
     println("Train model....")
-    model.setListeners(new ScoreIterationListener(1))
+    model.setListeners(new HistogramIterationListener(1))
     (0 until nEpochs).foreach { i =>
       model.fit(data._1)
       println("*** Completed epoch {} ***", i)
