@@ -23,33 +23,34 @@ object Driver {
     Nd4j.factory().setDType(DataBuffer.Type.DOUBLE)
     Nd4j.ENFORCE_NUMERICAL_STABILITY = true
 
-    val nChannels = 1
+    val nChannels = 3
     val outputNum = 10
     val batchSize = 64
     val nEpochs = 10
     val iterations = 1
-    val seed = 123
+    val seed = 12345
+    val learnRate = .01
+    val dropOutRetainProbability = .9
 
-    println("Load data....")
-    val mnistTrain = new MnistDataSetIterator(batchSize, true, 12345)
-    val mnistTest = new MnistDataSetIterator(batchSize, false, 12345)
 
     println("Build model....")
     val builder: MultiLayerConfiguration.Builder = new NeuralNetConfiguration.Builder()
       .seed(seed)
       .iterations(iterations)
       .regularization(true).l2(0.0005)
-      .learningRate(0.01)
+      .learningRate(learnRate)
       .weightInit(WeightInit.XAVIER)
       .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
       .updater(Updater.NESTEROVS).momentum(0.9)
       .list()
       .layer(0, new ConvolutionLayer.Builder(5, 5)
-        //nIn and nOut specify depth. nIn here is the nChannels and nOut is the number of filters to be applied
+        //nIn and nOut specify depth. nIn here is the nChannels and nOut is the # of filters to be applied
         .nIn(nChannels)
         .stride(1, 1)
-        .nOut(20)
-        .activation("identity")
+        .padding(2)
+        .nOut(32)
+        .activation("relu")
+        .dropOut(dropOutRetainProbability)
         .build())
       .layer(1, new SubsamplingLayer.Builder(SubsamplingLayer.PoolingType.MAX)
         .kernelSize(2, 2)
@@ -58,44 +59,62 @@ object Driver {
       .layer(2, new ConvolutionLayer.Builder(5, 5)
         //Note that nIn needed be specified in later layers
         .stride(1, 1)
-        .nOut(50)
-        .activation("identity")
+        .nOut(64)
+        .activation("relu")
+        .dropOut(dropOutRetainProbability)
         .build())
       .layer(3, new SubsamplingLayer.Builder(SubsamplingLayer.PoolingType.MAX)
         .kernelSize(2, 2)
         .stride(2, 2)
         .build())
-      .layer(4, new DenseLayer.Builder().activation("relu")
-        .nOut(500).build())
-      .layer(5, new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
+      .layer(4, new ConvolutionLayer.Builder(5, 5)
+        .stride(1,1)
+        .nOut(128)
+        .activation("relu")
+        .dropOut(dropOutRetainProbability)
+        .build())
+      .layer(5, new SubsamplingLayer.Builder(SubsamplingLayer.PoolingType.MAX)
+        .kernelSize(2, 2)
+        .stride(2, 2)
+        .build())
+      .layer(6, new DenseLayer.Builder().activation("relu")
+        .nOut(1024)
+        .dropOut(dropOutRetainProbability).build())
+      .layer(7, new DenseLayer.Builder().activation("relu")
+        .nOut(512)
+          .dropOut(dropOutRetainProbability).build())
+      .layer(8, new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
         .nOut(outputNum)
         .activation("softmax")
         .build())
       .backprop(true).pretrain(false)
 
     // The builder needs the dimensions of the image along with the number of channels. these are 28x28 images in one channel
-    new ConvolutionLayerSetup(builder, 28, 28, 1)
+    new ConvolutionLayerSetup(builder, 32, 32, 3)
 
     val conf: MultiLayerConfiguration = builder.build()
 
     val model: MultiLayerNetwork = new MultiLayerNetwork(conf)
     model.init()
 
+
+    val data = ImagePipeline.pipeline("/home/brad/Documents/digits_images/cifar10/train/")
+
     println("Train model....")
     model.setListeners(new HistogramIterationListener(1))
     (0 until nEpochs).foreach { i =>
-      model.fit(mnistTrain)
+      model.fit(data._1)
       println("*** Completed epoch {} ***", i)
 
       println("Evaluate model....")
       val eval = new Evaluation(outputNum)
-      while (mnistTest.hasNext) {
-        val ds = mnistTest.next()
+      while (data._2.hasNext) {
+        val ds = data._2.next()
         val output = model.output(ds.getFeatureMatrix, false)
         eval.eval(ds.getLabels, output)
       }
       println(eval.stats())
-      mnistTest.reset()
+      data._2.reset()
     }
     println("****************Example finished********************")
   }
