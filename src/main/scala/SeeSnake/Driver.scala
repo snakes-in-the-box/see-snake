@@ -47,7 +47,7 @@ object Driver {
         //nIn and nOut specify depth. nIn here is the nChannels and nOut is the # of filters to be applied
         .nIn(nChannels)
         .stride(1, 1)
-        .padding(2)
+        .padding(2,2)
         .nOut(32)
         .activation("relu")
         .dropOut(dropOutRetainProbability)
