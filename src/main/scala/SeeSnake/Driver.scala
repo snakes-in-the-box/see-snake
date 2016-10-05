@@ -26,7 +26,7 @@ object Driver {
     val nChannels = 3
     val outputNum = 10
     val batchSize = 64
-    val nEpochs = 10
+    val nEpochs = 1
     val iterations = 1
     val seed = 12345
     val learnRate = .0001
@@ -43,7 +43,7 @@ object Driver {
       .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
       .updater(Updater.NESTEROVS).momentum(0.75)
       .list()
-      .layer(0, new ConvolutionLayer.Builder(5, 5)
+      .layer(0, new ConvolutionLayer.Builder(3, 3)
         //nIn and nOut specify depth. nIn here is the nChannels and nOut is the # of filters to be applied
         .nIn(nChannels)
         .stride(1, 1)
@@ -56,7 +56,7 @@ object Driver {
         .kernelSize(2, 2)
         .stride(2, 2)
         .build())
-      .layer(2, new ConvolutionLayer.Builder(5, 5)
+      .layer(2, new ConvolutionLayer.Builder(3, 3)
         //Note that nIn needed be specified in later layers
         .stride(1, 1)
         .nOut(64)
@@ -67,7 +67,7 @@ object Driver {
         .kernelSize(2, 2)
         .stride(2, 2)
         .build())
-      .layer(4, new ConvolutionLayer.Builder(5, 5)
+      .layer(4, new ConvolutionLayer.Builder(3, 3)
         .stride(1,1)
         .nOut(128)
         .activation("relu")
