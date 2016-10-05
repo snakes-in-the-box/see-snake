@@ -29,7 +29,7 @@ object Driver {
     val nEpochs = 10
     val iterations = 1
     val seed = 12345
-    val learnRate = .01
+    val learnRate = .0001
     val dropOutRetainProbability = .9
 
 
@@ -98,10 +98,11 @@ object Driver {
     model.init()
 
 
-    val data = ImagePipeline.pipeline("/home/brad/Documents/digits_images/cifar10/train/")
+    val data = ImagePipeline.pipeline("C:/Users/Brent/Documents/School/DataPrac/cifar10/train/")
 
     println("Train model....")
-    model.setListeners(new HistogramIterationListener(1))
+    model.setListeners(new ScoreIterationListener(1))
+    //model.setListeners(new HistogramIterationListener(1))
     (0 until nEpochs).foreach { i =>
       model.fit(data._1)
       println("*** Completed epoch {} ***", i)
