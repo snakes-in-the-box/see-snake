@@ -1,7 +1,14 @@
 package SeeSnake
 
+import java.util.concurrent.TimeUnit
+
 import org.bytedeco.javacpp.opencv_shape.HistogramCostExtractor
 import org.deeplearning4j.datasets.iterator.impl.MnistDataSetIterator
+import org.deeplearning4j.earlystopping.EarlyStoppingConfiguration
+import org.deeplearning4j.earlystopping.saver.LocalFileModelSaver
+import org.deeplearning4j.earlystopping.scorecalc.DataSetLossCalculator
+import org.deeplearning4j.earlystopping.termination.{MaxTimeIterationTerminationCondition, ScoreImprovementEpochTerminationCondition}
+import org.deeplearning4j.earlystopping.trainer.EarlyStoppingTrainer
 import org.deeplearning4j.eval.Evaluation
 import org.deeplearning4j.nn.api.OptimizationAlgorithm
 import org.deeplearning4j.nn.conf.layers.setup.ConvolutionLayerSetup
@@ -49,7 +56,7 @@ object Driver {
         //nIn and nOut specify depth. nIn here is the nChannels and nOut is the # of filters to be applied
         .nIn(nChannels)
         .stride(1, 1)
-        .padding(2,2)
+        .padding(2, 2)
         .nOut(32)
         .activation("relu")
         .dropOut(dropOutRetainProbability)
@@ -70,7 +77,7 @@ object Driver {
         .stride(2, 2)
         .build())
       .layer(4, new ConvolutionLayer.Builder(5, 5)
-        .stride(1,1)
+        .stride(1, 1)
         .nOut(128)
         .activation("relu")
         .dropOut(dropOutRetainProbability)
@@ -84,7 +91,7 @@ object Driver {
         .dropOut(dropOutRetainProbability).build())
       .layer(7, new DenseLayer.Builder().activation("relu")
         .nOut(512)
-          .dropOut(dropOutRetainProbability).build())
+        .dropOut(dropOutRetainProbability).build())
       .layer(8, new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
         .nOut(outputNum)
         .activation("softmax")
@@ -93,35 +100,31 @@ object Driver {
 
     // The builder needs the dimensions of the image along with the number of channels. these are 28x28 images in one channel
     new ConvolutionLayerSetup(builder, 32, 32, 3)
+    val data = ImagePipeline.pipeline("/home/brad/Documents/digits_images/cifar10/train/")
 
-
+    val esConf = new EarlyStoppingConfiguration.Builder()
+      .epochTerminationConditions(new ScoreImprovementEpochTerminationCondition(2))
+      .iterationTerminationConditions(new MaxTimeIterationTerminationCondition(10, TimeUnit.MINUTES))
+      .scoreCalculator(new DataSetLossCalculator(data._2, true))
+      .evaluateEveryNEpochs(1)
+      .modelSaver(new LocalFileModelSaver("/home/brad/Documents/InteliJProjects/see-snake"))
+      .build()
 
     val conf: MultiLayerConfiguration = builder.build()
 
-    val model: MultiLayerNetwork = new MultiLayerNetwork(conf)
-    model.init()
-
-
-    val data = ImagePipeline.pipeline("/home/brad/Documents/digits_images/cifar10/train/")
+    val trainer = new EarlyStoppingTrainer(esConf, conf, data._1)
 
     println("Train model....")
-    model.setListeners(new ScoreIterationListener(1))
-    //model.setListeners(new HistogramIterationListener(1))
-    (0 until nEpochs).foreach { i =>
-      model.fit(data._1)
-      println(s"*** Completed epoch ${i} ***")
+    val result = trainer.fit()
+    //Print out the results:
+    println("Termination reason: " + result.getTerminationReason());
+    println("Termination details: " + result.getTerminationDetails());
+    println("Total epochs: " + result.getTotalEpochs());
+    println("Best epoch number: " + result.getBestModelEpoch());
+    println("Score at best epoch: " + result.getBestModelScore());
 
-      println("Evaluate model....")
-      val eval = new Evaluation(outputNum)
-      while (data._2.hasNext) {
-        val ds = data._2.next()
-        val output = model.output(ds.getFeatureMatrix, false)
-        eval.eval(ds.getLabels, output)
-      }
-      println(eval.stats())
-      data._2.reset()
-    }
-    println("****************Example finished********************")
+    val bestModel = result.getBestModel()
+
   }
 
 }
