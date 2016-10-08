@@ -11,6 +11,7 @@ import org.deeplearning4j.earlystopping.termination.{MaxTimeIterationTermination
 import org.deeplearning4j.earlystopping.trainer.EarlyStoppingTrainer
 import org.deeplearning4j.eval.Evaluation
 import org.deeplearning4j.nn.api.OptimizationAlgorithm
+import org.deeplearning4j.nn.conf.inputs.InputType
 import org.deeplearning4j.nn.conf.layers.setup.ConvolutionLayerSetup
 import org.deeplearning4j.nn.conf.layers.{ConvolutionLayer, DenseLayer, OutputLayer, SubsamplingLayer}
 import org.deeplearning4j.nn.conf.{MultiLayerConfiguration, NeuralNetConfiguration, Updater}
@@ -96,15 +97,14 @@ object Driver {
         .nOut(outputNum)
         .activation("softmax")
         .build())
+        .setInputType(InputType.convolutionalFlat(32,32,3))
       .backprop(true).pretrain(false)
 
-    // The builder needs the dimensions of the image along with the number of channels. these are 28x28 images in one channel
-    new ConvolutionLayerSetup(builder, 32, 32, 3)
     val data = ImagePipeline.pipeline("/home/brad/Documents/digits_images/cifar10/train/")
 
     val esConf = new EarlyStoppingConfiguration.Builder()
       .epochTerminationConditions(new ScoreImprovementEpochTerminationCondition(2))
-      .iterationTerminationConditions(new MaxTimeIterationTerminationCondition(10, TimeUnit.HOURS))
+      .iterationTerminationConditions(new MaxTimeIterationTerminationCondition(5, TimeUnit.MINUTES))
       .scoreCalculator(new DataSetLossCalculator(data._2, true))
       .evaluateEveryNEpochs(1)
       .modelSaver(new LocalFileModelSaver("/home/brad/Documents/InteliJProjects/see-snake"))
@@ -116,14 +116,14 @@ object Driver {
 
     println("Train model....")
     val result = trainer.fit()
-    //Print out the results:
-    println("Termination reason: " + result.getTerminationReason());
-    println("Termination details: " + result.getTerminationDetails());
-    println("Total epochs: " + result.getTotalEpochs());
-    println("Best epoch number: " + result.getBestModelEpoch());
-    println("Score at best epoch: " + result.getBestModelScore());
 
-    val bestModel: MultiLayerNetwork = result.getBestModel()
+    println("Termination reason: " + result.getTerminationReason)
+    println("Termination details: " + result.getTerminationDetails)
+    println("Total epochs: " + result.getTotalEpochs)
+    println("Best epoch number: " + result.getBestModelEpoch)
+    println("Score at best epoch: " + result.getBestModelScore)
+
+    val bestModel: MultiLayerNetwork = result.getBestModel
 
     println("Evaluate model....")
     val eval = new Evaluation(outputNum)
