@@ -12,6 +12,7 @@ import org.deeplearning4j.nn.weights.WeightInit
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener
 import org.deeplearning4j.ui.weights.HistogramIterationListener
 import org.nd4j.linalg.api.buffer.DataBuffer
+import org.nd4j.linalg.api.buffer.util.DataTypeUtil
 import org.nd4j.linalg.factory.Nd4j
 import org.nd4j.linalg.lossfunctions.LossFunctions
 
@@ -22,11 +23,12 @@ object Driver {
     Nd4j.dtype = DataBuffer.Type.DOUBLE
     Nd4j.factory().setDType(DataBuffer.Type.DOUBLE)
     Nd4j.ENFORCE_NUMERICAL_STABILITY = true
+    DataTypeUtil.setDTypeForContext(DataBuffer.Type.HALF)
 
     val nChannels = 3
     val outputNum = 10
     val batchSize = 64
-    val nEpochs = 10
+    val nEpochs = 20
     val iterations = 1
     val seed = 12345
     val learnRate = .0001
@@ -98,14 +100,14 @@ object Driver {
     model.init()
 
 
-    val data = ImagePipeline.pipeline("C:/Users/Brent/Documents/School/DataPrac/cifar10/train/")
+    val data = ImagePipeline.pipeline("/home/brad/Documents/digits_images/cifar10/train/")
 
     println("Train model....")
     model.setListeners(new ScoreIterationListener(1))
     //model.setListeners(new HistogramIterationListener(1))
     (0 until nEpochs).foreach { i =>
       model.fit(data._1)
-      println("*** Completed epoch {} ***", i)
+      println(s"*** Completed epoch ${i} ***")
 
       println("Evaluate model....")
       val eval = new Evaluation(outputNum)
