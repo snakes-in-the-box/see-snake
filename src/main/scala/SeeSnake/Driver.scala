@@ -27,8 +27,8 @@ object Driver {
 
     val nChannels = 3
     val outputNum = 10
-    val batchSize = 64
-    val nEpochs = 20
+    val batchSize = 128
+    val nEpochs = 10
     val iterations = 1
     val seed = 12345
     val learnRate = .0001
@@ -93,6 +93,8 @@ object Driver {
 
     // The builder needs the dimensions of the image along with the number of channels. these are 28x28 images in one channel
     new ConvolutionLayerSetup(builder, 32, 32, 3)
+
+
 
     val conf: MultiLayerConfiguration = builder.build()
 
