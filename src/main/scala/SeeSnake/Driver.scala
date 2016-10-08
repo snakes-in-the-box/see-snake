@@ -41,7 +41,7 @@ object Driver {
       .learningRate(learnRate)
       .weightInit(WeightInit.XAVIER)
       .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
-      .updater(Updater.NESTEROVS).momentum(0.75)
+      .updater(Updater.NESTEROVS).momentum(0.1)
       .list()
       .layer(0, new ConvolutionLayer.Builder(3, 3)
         //nIn and nOut specify depth. nIn here is the nChannels and nOut is the # of filters to be applied
