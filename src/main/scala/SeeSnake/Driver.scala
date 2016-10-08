@@ -104,7 +104,7 @@ object Driver {
 
     val esConf = new EarlyStoppingConfiguration.Builder()
       .epochTerminationConditions(new ScoreImprovementEpochTerminationCondition(2))
-      .iterationTerminationConditions(new MaxTimeIterationTerminationCondition(10, TimeUnit.MINUTES))
+      .iterationTerminationConditions(new MaxTimeIterationTerminationCondition(10, TimeUnit.HOURS))
       .scoreCalculator(new DataSetLossCalculator(data._2, true))
       .evaluateEveryNEpochs(1)
       .modelSaver(new LocalFileModelSaver("/home/brad/Documents/InteliJProjects/see-snake"))
@@ -123,8 +123,17 @@ object Driver {
     println("Best epoch number: " + result.getBestModelEpoch());
     println("Score at best epoch: " + result.getBestModelScore());
 
-    val bestModel = result.getBestModel()
+    val bestModel: MultiLayerNetwork = result.getBestModel()
 
+    println("Evaluate model....")
+    val eval = new Evaluation(outputNum)
+    while (data._2.hasNext) {
+      val ds = data._2.next()
+      val output = bestModel.output(ds.getFeatureMatrix, false)
+      eval.eval(ds.getLabels, output)
+    }
+    println(eval.stats())
+    data._2.reset()
   }
 
 }
