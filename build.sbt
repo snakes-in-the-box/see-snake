@@ -24,7 +24,7 @@ libraryDependencies ++= Seq(
 
   "org.jblas" % "jblas" % "1.2.4",
 
-  "org.nd4j" % "nd4j-native-platform" % "0.6.0"
+  "org.nd4j" % "nd4j-cuda-7.5-platform" % "0.6.0"
 )
 
 lazy val commonResolvers = Seq(

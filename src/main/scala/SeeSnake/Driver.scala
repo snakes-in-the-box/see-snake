@@ -10,8 +10,11 @@ import org.deeplearning4j.nn.conf.{MultiLayerConfiguration, NeuralNetConfigurati
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork
 import org.deeplearning4j.nn.weights.WeightInit
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener
+import org.deeplearning4j.parallelism.ParallelWrapper
 import org.deeplearning4j.ui.weights.HistogramIterationListener
+import org.nd4j.jita.conf.CudaEnvironment
 import org.nd4j.linalg.api.buffer.DataBuffer
+import org.nd4j.linalg.api.buffer.util.DataTypeUtil
 import org.nd4j.linalg.factory.Nd4j
 import org.nd4j.linalg.lossfunctions.LossFunctions
 
@@ -26,11 +29,19 @@ object Driver {
     val nChannels = 3
     val outputNum = 10
     val batchSize = 64
-    val nEpochs = 10
+    val nEpochs = 5
     val iterations = 1
     val seed = 12345
     val learnRate = .0001
     val dropOutRetainProbability = .9
+
+
+    DataTypeUtil.setDTypeForContext(DataBuffer.Type.HALF)
+
+    CudaEnvironment.getInstance().getConfiguration
+      .allowMultiGPU(false)
+      .setMaximumDeviceCache(2L * 1024L * 1024L * 1024L)
+      .allowCrossDeviceAccess(true)
 
 
     println("Build model....")
@@ -47,7 +58,7 @@ object Driver {
         //nIn and nOut specify depth. nIn here is the nChannels and nOut is the # of filters to be applied
         .nIn(nChannels)
         .stride(1, 1)
-        .padding(2,2)
+        .padding(2, 2)
         .nOut(32)
         .activation("relu")
         .dropOut(dropOutRetainProbability)
@@ -68,7 +79,7 @@ object Driver {
         .stride(2, 2)
         .build())
       .layer(4, new ConvolutionLayer.Builder(5, 5)
-        .stride(1,1)
+        .stride(1, 1)
         .nOut(128)
         .activation("relu")
         .dropOut(dropOutRetainProbability)
@@ -82,7 +93,7 @@ object Driver {
         .dropOut(dropOutRetainProbability).build())
       .layer(7, new DenseLayer.Builder().activation("relu")
         .nOut(512)
-          .dropOut(dropOutRetainProbability).build())
+        .dropOut(dropOutRetainProbability).build())
       .layer(8, new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
         .nOut(outputNum)
         .activation("softmax")
@@ -97,27 +108,40 @@ object Driver {
     val model: MultiLayerNetwork = new MultiLayerNetwork(conf)
     model.init()
 
+    val wrapper: ParallelWrapper = new ParallelWrapper.Builder(model)
+      .prefetchBuffer(24)
+      .workers(2)
+      .averagingFrequency(3)
+      .reportScoreAfterAveraging(true)
+      .useLegacyAveraging(false)
+      .build()
 
-    val data = ImagePipeline.pipeline("C:/Users/Brent/Documents/School/DataPrac/cifar10/train/")
+    val data = ImagePipeline.pipeline("/home/brad/Documents/digits_images/cifar10/train/")
 
     println("Train model....")
     model.setListeners(new ScoreIterationListener(1))
     //model.setListeners(new HistogramIterationListener(1))
+    val timeX: Long = System.currentTimeMillis()
     (0 until nEpochs).foreach { i =>
-      model.fit(data._1)
-      println("*** Completed epoch {} ***", i)
-
-      println("Evaluate model....")
-      val eval = new Evaluation(outputNum)
-      while (data._2.hasNext) {
-        val ds = data._2.next()
-        val output = model.output(ds.getFeatureMatrix, false)
-        eval.eval(ds.getLabels, output)
-      }
-      println(eval.stats())
-      data._2.reset()
+      val time1 = System.currentTimeMillis()
+      wrapper.fit(data._1)
+      val time2 = System.currentTimeMillis()
+      println(s"*** Completed epoch ${i}, time: ${time2-time1} ***")
     }
-    println("****************Example finished********************")
+    val timeY = System.currentTimeMillis()
+    println(s"*** Training complete, time: ${timeY-timeX} ***")
+
+    println("Evaluate model....")
+
+    val eval = new Evaluation(outputNum)
+    while (data._2.hasNext) {
+      val ds = data._2.next()
+      val output = model.output(ds.getFeatureMatrix, false)
+      eval.eval(ds.getLabels, output)
+    }
+
+    println(eval.stats())
+    data._2.reset()
   }
 
 }
