@@ -2,8 +2,6 @@ package SeeSnake
 
 import java.util.concurrent.TimeUnit
 
-import org.bytedeco.javacpp.opencv_shape.HistogramCostExtractor
-import org.deeplearning4j.datasets.iterator.impl.MnistDataSetIterator
 import org.deeplearning4j.earlystopping.EarlyStoppingConfiguration
 import org.deeplearning4j.earlystopping.saver.LocalFileModelSaver
 import org.deeplearning4j.earlystopping.scorecalc.DataSetLossCalculator
@@ -12,13 +10,10 @@ import org.deeplearning4j.earlystopping.trainer.EarlyStoppingTrainer
 import org.deeplearning4j.eval.Evaluation
 import org.deeplearning4j.nn.api.OptimizationAlgorithm
 import org.deeplearning4j.nn.conf.inputs.InputType
-import org.deeplearning4j.nn.conf.layers.setup.ConvolutionLayerSetup
 import org.deeplearning4j.nn.conf.layers.{ConvolutionLayer, DenseLayer, OutputLayer, SubsamplingLayer}
 import org.deeplearning4j.nn.conf.{MultiLayerConfiguration, NeuralNetConfiguration, Updater}
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork
 import org.deeplearning4j.nn.weights.WeightInit
-import org.deeplearning4j.optimize.listeners.ScoreIterationListener
-import org.deeplearning4j.ui.weights.HistogramIterationListener
 import org.nd4j.linalg.api.buffer.DataBuffer
 import org.nd4j.linalg.api.buffer.util.DataTypeUtil
 import org.nd4j.linalg.factory.Nd4j
@@ -53,6 +48,7 @@ object Driver {
       .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
       .updater(Updater.NESTEROVS).momentum(0.9)
       .list()
+
       .layer(0, new ConvolutionLayer.Builder(5, 5)
         //nIn and nOut specify depth. nIn here is the nChannels and nOut is the # of filters to be applied
         .nIn(nChannels)
@@ -62,10 +58,12 @@ object Driver {
         .activation("relu")
         .dropOut(dropOutRetainProbability)
         .build())
+
       .layer(1, new SubsamplingLayer.Builder(SubsamplingLayer.PoolingType.MAX)
         .kernelSize(2, 2)
         .stride(2, 2)
         .build())
+
       .layer(2, new ConvolutionLayer.Builder(5, 5)
         //Note that nIn needed be specified in later layers
         .stride(1, 1)
@@ -73,31 +71,38 @@ object Driver {
         .activation("relu")
         .dropOut(dropOutRetainProbability)
         .build())
+
       .layer(3, new SubsamplingLayer.Builder(SubsamplingLayer.PoolingType.MAX)
         .kernelSize(2, 2)
         .stride(2, 2)
         .build())
+
       .layer(4, new ConvolutionLayer.Builder(5, 5)
         .stride(1, 1)
         .nOut(128)
         .activation("relu")
         .dropOut(dropOutRetainProbability)
         .build())
+
       .layer(5, new SubsamplingLayer.Builder(SubsamplingLayer.PoolingType.MAX)
         .kernelSize(2, 2)
         .stride(2, 2)
         .build())
+
       .layer(6, new DenseLayer.Builder().activation("relu")
         .nOut(1024)
         .dropOut(dropOutRetainProbability).build())
+
       .layer(7, new DenseLayer.Builder().activation("relu")
         .nOut(512)
         .dropOut(dropOutRetainProbability).build())
+
       .layer(8, new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
         .nOut(outputNum)
         .activation("softmax")
         .build())
-        .setInputType(InputType.convolutionalFlat(32,32,3))
+
+      .setInputType(InputType.convolutional(32,32,3))
       .backprop(true).pretrain(false)
 
     val data = ImagePipeline.pipeline("/home/brad/Documents/digits_images/cifar10/train/")
