@@ -50,7 +50,7 @@ object Driver {
       .updater(Updater.NESTEROVS).momentum(0.9)
       .list()
 
-      //TODO please add a .name() to each layer so we know what is going on
+      //TODO please add a .name() to each layer so we know what is going on where
       .layer(0, new ConvolutionLayer.Builder(3, 3)
         //nIn and nOut specify depth. nIn here is the nChannels and nOut is the # of filters to be applied
         .nIn(nChannels)
