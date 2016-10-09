@@ -39,6 +39,7 @@ object Driver {
 
 
     println("Build model....")
+
     val builder: MultiLayerConfiguration.Builder = new NeuralNetConfiguration.Builder()
       .seed(seed)
       .iterations(iterations)
@@ -51,7 +52,7 @@ object Driver {
       .list()
 
       //TODO please add a .name() to each layer so we know what is going on where
-      .layer(0, new ConvolutionLayer.Builder(3, 3)
+      .layer(0, new ConvolutionLayer.Builder(5, 5)
         //nIn and nOut specify depth. nIn here is the nChannels and nOut is the # of filters to be applied
         .nIn(nChannels)
         .stride(1, 1)
@@ -68,7 +69,7 @@ object Driver {
         .build()
       )
 
-      .layer(2, new ConvolutionLayer.Builder(3, 3)
+      .layer(2, new ConvolutionLayer.Builder(5, 5)
         //Note that nIn needed be specified in later layers
         .stride(1, 1)
         .nOut(64)
@@ -83,7 +84,7 @@ object Driver {
         .build()
       )
 
-      .layer(4, new ConvolutionLayer.Builder(3, 3)
+      .layer(4, new ConvolutionLayer.Builder(5, 5)
         .stride(1,1)
         .nOut(128)
         .activation("relu")
