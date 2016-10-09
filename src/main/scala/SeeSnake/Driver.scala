@@ -44,7 +44,7 @@ object Driver {
       .iterations(iterations)
       .regularization(true).l2(0.0005)
       .learningRate(learnRate)
-      .weightInit(WeightInit.XAVIER)
+      .weightInit(WeightInit.RELU)
       .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
       .updater(Updater.NESTEROVS).momentum(0.9)
       .list()
