@@ -11,7 +11,7 @@ import org.deeplearning4j.eval.Evaluation
 import org.deeplearning4j.nn.api.OptimizationAlgorithm
 import org.deeplearning4j.nn.conf.inputs.InputType
 import org.deeplearning4j.nn.conf.layers.{ConvolutionLayer, DenseLayer, OutputLayer, SubsamplingLayer}
-import org.deeplearning4j.nn.conf.{MultiLayerConfiguration, NeuralNetConfiguration, Updater}
+import org.deeplearning4j.nn.conf.{LearningRatePolicy, MultiLayerConfiguration, NeuralNetConfiguration, Updater}
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork
 import org.deeplearning4j.nn.weights.WeightInit
 import org.nd4j.linalg.api.buffer.DataBuffer
@@ -44,6 +44,7 @@ object Driver {
       .iterations(iterations)
       .regularization(true).l2(0.0005)
       .learningRate(learnRate)
+      .learningRateDecayPolicy(LearningRatePolicy.Inverse).lrPolicyDecayRate(0.001).lrPolicyPower(0.75)
       .weightInit(WeightInit.XAVIER)
       .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
       .updater(Updater.NESTEROVS).momentum(0.9)
@@ -102,7 +103,7 @@ object Driver {
       .iterationTerminationConditions(new MaxTimeIterationTerminationCondition(10, TimeUnit.HOURS))
       .scoreCalculator(new DataSetLossCalculator(data._2, true))
       .evaluateEveryNEpochs(1)
-      .modelSaver(new LocalFileModelSaver("/home/brad/Documents/InteliJProjects/see-snake"))
+      .modelSaver(new LocalFileModelSaver("/home/brad/Documents/InteliJProjects/see-snake/"))
       .build()
 
     val conf: MultiLayerConfiguration = builder.build()
