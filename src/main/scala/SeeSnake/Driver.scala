@@ -110,10 +110,10 @@ object Driver {
       model.fit(data._1)
       println("*** Completed epoch {} ***", i)
 
-      val modelFile = new File("C:/Users/Brent/Documents/School/DataPrac");
-      val fos = new FileOutputStream(modelFile);
+      val modelFile = new File("C:/Users/Brent/Documents/School/DataPrac/model.bin")
+      val fos = new FileOutputStream(modelFile)
 
-      ModelSerializer.writeModel(model, fos, true);
+      ModelSerializer.writeModel(model, fos, true)
 
       println("Evaluate model....")
       val eval = new Evaluation(outputNum)
