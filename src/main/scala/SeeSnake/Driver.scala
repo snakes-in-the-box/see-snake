@@ -1,5 +1,7 @@
 package SeeSnake
 
+import java.io.{File, FileOutputStream}
+
 import org.bytedeco.javacpp.opencv_shape.HistogramCostExtractor
 import org.deeplearning4j.datasets.iterator.impl.MnistDataSetIterator
 import org.deeplearning4j.eval.Evaluation
@@ -11,6 +13,7 @@ import org.deeplearning4j.nn.multilayer.MultiLayerNetwork
 import org.deeplearning4j.nn.weights.WeightInit
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener
 import org.deeplearning4j.ui.weights.HistogramIterationListener
+import org.deeplearning4j.util.ModelSerializer
 import org.nd4j.linalg.api.buffer.DataBuffer
 import org.nd4j.linalg.factory.Nd4j
 import org.nd4j.linalg.lossfunctions.LossFunctions
@@ -106,6 +109,11 @@ object Driver {
     (0 until nEpochs).foreach { i =>
       model.fit(data._1)
       println("*** Completed epoch {} ***", i)
+
+      val modelFile = new File("C:/Users/Brent/Documents/School/DataPrac");
+      val fos = new FileOutputStream(modelFile);
+
+      ModelSerializer.writeModel(model, fos, true);
 
       println("Evaluate model....")
       val eval = new Evaluation(outputNum)
