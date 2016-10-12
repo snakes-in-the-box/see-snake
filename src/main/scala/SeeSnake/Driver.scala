@@ -31,7 +31,7 @@ object Driver {
     val batchSize = 64
     val nEpochs = 1
     val iterations = 1
-    val seed = 666
+    val seed = 12345
     val learnRate = .0001
     val dropOutRetainProbability = .9
 
@@ -42,7 +42,7 @@ object Driver {
       .iterations(iterations)
       .regularization(true).l2(0.0005)
       .learningRate(learnRate)
-      .weightInit(WeightInit.XAVIER)
+      .weightInit(WeightInit.RELU)
       .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
       .updater(Updater.NESTEROVS).momentum(0.1)
       .list()
