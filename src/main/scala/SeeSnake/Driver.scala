@@ -1,6 +1,6 @@
 package SeeSnake
 
-import java.io.{File, FileOutputStream}
+import java.io.{File, FileInputStream, FileOutputStream}
 
 import org.bytedeco.javacpp.opencv_shape.HistogramCostExtractor
 import org.deeplearning4j.datasets.iterator.impl.MnistDataSetIterator
@@ -103,6 +103,7 @@ object Driver {
 
     val data = ImagePipeline.pipeline("C:/Users/Brent/Documents/School/DataPrac/cifar10/train/")
 
+    /*
     println("Train model....")
     model.setListeners(new ScoreIterationListener(1))
     //model.setListeners(new HistogramIterationListener(1))
@@ -110,10 +111,22 @@ object Driver {
       model.fit(data._1)
       println("*** Completed epoch {} ***", i)
 
+
       val modelFile = new File("C:/Users/Brent/Documents/School/DataPrac/model.bin")
       val fos = new FileOutputStream(modelFile)
 
       ModelSerializer.writeModel(model, fos, true)
+    */
+
+    println("Load model")
+    val fis = new FileInputStream("C:/Users/Brent/Documents/School/DataPrac/model.bin");
+
+    val network = ModelSerializer.restoreMultiLayerNetwork(fis);
+
+
+    assert(network.getLayerWiseConfigurations().toJson() == model.getLayerWiseConfigurations().toJson());
+    assert(network.params() == model.params());
+    assert(network.getUpdater() == model.getUpdater());
 
       println("Evaluate model....")
       val eval = new Evaluation(outputNum)
@@ -126,6 +139,6 @@ object Driver {
       data._2.reset()
     }
     println("****************Example finished********************")
-  }
+  //}
 
 }
