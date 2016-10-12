@@ -10,6 +10,7 @@ import org.deeplearning4j.earlystopping.trainer.EarlyStoppingTrainer
 import org.deeplearning4j.eval.Evaluation
 import org.deeplearning4j.nn.api.OptimizationAlgorithm
 import org.deeplearning4j.nn.conf.inputs.InputType
+import org.deeplearning4j.nn.conf.layers.setup.ConvolutionLayerSetup
 import org.deeplearning4j.nn.conf.layers.{ConvolutionLayer, DenseLayer, OutputLayer, SubsamplingLayer}
 import org.deeplearning4j.nn.conf.{LearningRatePolicy, MultiLayerConfiguration, NeuralNetConfiguration, Updater}
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork
@@ -45,14 +46,14 @@ object Driver {
       .iterations(iterations)
       .regularization(true).l2(0.0005)
       .learningRate(learnRate)
-      .learningRateDecayPolicy(LearningRatePolicy.Inverse).lrPolicyDecayRate(0.001).lrPolicyPower(0.75)
+      //.learningRateDecayPolicy(LearningRatePolicy.Score).lrPolicyDecayRate(0.1)
       .weightInit(WeightInit.XAVIER)
       .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
       .updater(Updater.NESTEROVS).momentum(0.9)
       .list()
 
       //TODO please add a .name() to each layer so we know what is going on where
-      .layer(0, new ConvolutionLayer.Builder(5, 5)
+      .layer(0, new ConvolutionLayer.Builder(3, 3)
         //nIn and nOut specify depth. nIn here is the nChannels and nOut is the # of filters to be applied
         .nIn(nChannels)
         .stride(1, 1)
@@ -69,7 +70,7 @@ object Driver {
         .build()
       )
 
-      .layer(2, new ConvolutionLayer.Builder(5, 5)
+      .layer(2, new ConvolutionLayer.Builder(3, 3)
         //Note that nIn needed be specified in later layers
         .stride(1, 1)
         .nOut(64)
@@ -84,7 +85,7 @@ object Driver {
         .build()
       )
 
-      .layer(4, new ConvolutionLayer.Builder(5, 5)
+      .layer(4, new ConvolutionLayer.Builder(3, 3)
         .stride(1,1)
         .nOut(128)
         .activation("relu")
@@ -116,11 +117,12 @@ object Driver {
         .build()
       )
 
-      .setInputType(InputType.convolutional(32,32,3))
       .backprop(true)
       .pretrain(false)
 
-    val data = ImagePipeline.pipeline("/home/brad/Documents/digits_images/cifar10/train/")
+    new ConvolutionLayerSetup(builder, 32, 32, 3)
+
+    val data = ImagePipeline.pipeline("/media/brad/disk2/dataset/train/")
 
     val esConf = new EarlyStoppingConfiguration.Builder()
       .epochTerminationConditions(new ScoreImprovementEpochTerminationCondition(2))
