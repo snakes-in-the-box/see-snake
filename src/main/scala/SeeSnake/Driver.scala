@@ -122,7 +122,7 @@ object Driver {
 
     new ConvolutionLayerSetup(builder, 32, 32, 3)
 
-    val data = ImagePipeline.pipeline("/media/brad/disk2/dataset/train/")
+    val data = ImagePipeline.pipeline("/media/brad/disk2/cifar10/train")
 
     val esConf = new EarlyStoppingConfiguration.Builder()
       .epochTerminationConditions(new ScoreImprovementEpochTerminationCondition(2))
