@@ -124,7 +124,7 @@ object Driver {
 
     new ConvolutionLayerSetup(builder, 32, 32, 3)
 
-    val data = ImagePipeline.pipeline("/media/brad/disk2/dataset/train")
+    val data = ImagePipeline.pipeline("/media/brad/disk2/cifar10/train")
 
     val conf: MultiLayerConfiguration = builder.build()
 
@@ -132,22 +132,22 @@ object Driver {
     model.init()
 
     println("Train model....")
-    model.setListeners(new ScoreIterationListener(1))
+    //model.setListeners(new ScoreIterationListener(1))
     //model.setListeners(new HistogramIterationListener(1))
     (0 until nEpochs).foreach { i =>
       model.fit(data._1)
-      println("*** Completed epoch {} ***", i)
-
-      println("Evaluate model....")
-      val eval = new Evaluation(outputNum)
-      while (data._2.hasNext) {
-        val ds = data._2.next()
-        val output = model.output(ds.getFeatureMatrix, false)
-        eval.eval(ds.getLabels, output)
-      }
-      println(eval.stats())
-      data._2.reset()
+      println(s"*** Completed epoch ${i} ***")
     }
+
+    println("Evaluate model....")
+    val eval = new Evaluation(outputNum)
+    while (data._2.hasNext) {
+      val ds = data._2.next()
+      val output = model.output(ds.getFeatureMatrix, false)
+      eval.eval(ds.getLabels, output)
+    }
+    println(eval.stats())
+    data._2.reset()
 
   }
 }
