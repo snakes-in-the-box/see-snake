@@ -133,7 +133,9 @@ object Driver {
       while (data._2.hasNext) {
         val ds = data._2.next()
         val output = model.output(ds.getFeatureMatrix, false)
-        //println(model.predict(ds.getFeatureMatrix) + "\n")
+        for (pred <- model.predict(ds.getFeatureMatrix)) {
+          println(pred)
+        }//for
         eval.eval(ds.getLabels, output)
       }
       println(eval.stats())
