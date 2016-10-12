@@ -27,22 +27,22 @@ object ImagePipeline {
   protected val channels = 3
   protected val outputNum = 10
 
-  def pipeline(path:String):(DataSetIterator,DataSetIterator) ={
+  def pipeline(path:String):DataSetIterator ={
     try {
       val parentDir: File = new File(path)
-      val filesInDir: FileSplit = new FileSplit(parentDir, allowedExtensions, randNumGen)
+      val filesInDir: FileSplit = new FileSplit(parentDir, allowedExtensions)
       val labelMaker: ParentPathLabelGenerator = new ParentPathLabelGenerator()
-      val pathFilter: BalancedPathFilter = new BalancedPathFilter(randNumGen, allowedExtensions, labelMaker)
-      val filesInDirSplit: Array[InputSplit] = filesInDir.sample(pathFilter, 90, 10)
-      val trainData: InputSplit = filesInDirSplit(0)
-      val testData: InputSplit = filesInDirSplit(1)
-      val recordTest: ImageRecordReader = new ImageRecordReader(height, width, channels, labelMaker)
-      val recordTrain: ImageRecordReader = new ImageRecordReader(height, width, channels, labelMaker)
-      recordTest.initialize(testData)
-      recordTrain.initialize(trainData)
-      val dataTest: DataSetIterator = new RecordReaderDataSetIterator(recordTest, 10, 1, outputNum)
-      val dataTrain: DataSetIterator = new RecordReaderDataSetIterator(recordTrain, 10, 1, outputNum)
-      (dataTrain, dataTest)
+      //val pathFilter: BalancedPathFilter = new BalancedPathFilter(randNumGen, allowedExtensions, labelMaker)
+      //val filesInDirSplit: Array[InputSplit] = filesInDir.sample(pathFilter, 100, 0)
+      //val trainData: InputSplit = filesInDirSplit(0)
+      //val testData: InputSplit = filesInDirSplit(1)
+      //val recordTest: ImageRecordReader = new ImageRecordReader(height, width, channels, labelMaker)
+      val record: ImageRecordReader = new ImageRecordReader(height, width, channels, labelMaker)
+      //recordTest.initialize(testData)
+      record.initialize(filesInDir)
+      //val dataTest: DataSetIterator = new RecordReaderDataSetIterator(recordTest, 10, 1, outputNum)
+      val data: DataSetIterator = new RecordReaderDataSetIterator(record, 10, 1, outputNum)
+      data
     }catch {
       case ex:Exception => println(ex.toString)
         System.exit(-1)
