@@ -52,7 +52,7 @@ object Driver {
         .stride(1, 1)
         .padding(1,1)
         .nOut(32)
-        .activation("leakyrelu")
+        .activation("relu")
         .dropOut(dropOutRetainProbability)
         .build())
       .layer(1, new SubsamplingLayer.Builder(SubsamplingLayer.PoolingType.MAX)
