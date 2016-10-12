@@ -121,7 +121,7 @@ object Driver {
     println("Load model")
     val fis = new FileInputStream("C:/Users/Brent/Documents/School/DataPrac/model.bin")
 
-    var network = ModelSerializer.restoreMultiLayerNetwork(fis)
+    val network = ModelSerializer.restoreMultiLayerNetwork(fis)
     network.setConf(model.conf())
 
 
