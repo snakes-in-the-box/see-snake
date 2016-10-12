@@ -31,7 +31,7 @@ object Driver {
     val batchSize = 64
     val nEpochs = 1
     val iterations = 1
-    val seed = 12345
+    val seed = 666
     val learnRate = .0001
     val dropOutRetainProbability = .9
 
@@ -51,7 +51,7 @@ object Driver {
         .nIn(nChannels)
         .stride(1, 1)
         .padding(2,2)
-        .nOut(16)
+        .nOut(32)
         .activation("relu")
         .dropOut(dropOutRetainProbability)
         .build())
@@ -62,7 +62,7 @@ object Driver {
       .layer(2, new ConvolutionLayer.Builder(3, 3)
         //Note that nIn needed be specified in later layers
         .stride(1, 1)
-        .nOut(32)
+        .nOut(64)
         .activation("relu")
         .dropOut(dropOutRetainProbability)
         .build())
@@ -72,7 +72,7 @@ object Driver {
         .build())
       .layer(4, new ConvolutionLayer.Builder(3, 3)
         .stride(1,1)
-        .nOut(64)
+        .nOut(128)
         .activation("relu")
         .dropOut(dropOutRetainProbability)
         .build())
@@ -81,10 +81,10 @@ object Driver {
         .stride(2, 2)
         .build())
       .layer(6, new DenseLayer.Builder().activation("relu")
-        .nOut(512)
+        .nOut(1024)
         .dropOut(dropOutRetainProbability).build())
       .layer(7, new DenseLayer.Builder().activation("relu")
-        .nOut(256)
+        .nOut(512)
           .dropOut(dropOutRetainProbability).build())
       .layer(8, new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
         .nOut(outputNum)
