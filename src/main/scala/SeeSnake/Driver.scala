@@ -34,10 +34,10 @@ object Driver {
     val nChannels = 3
     val outputNum = 10
     val batchSize = 128
-    val nEpochs = 10
+    val nEpochs = 20
     val iterations = 1
     val seed = 12345
-    val learnRate = .0001
+    val learnRate = .00005
     val dropOutRetainProbability = .9
 
 
@@ -46,7 +46,7 @@ object Driver {
     val builder: MultiLayerConfiguration.Builder = new NeuralNetConfiguration.Builder()
       .seed(seed)
       .iterations(iterations)
-      .regularization(true).l2(0.0005)
+      .regularization(true).l2(0.0001)
       .learningRate(learnRate)
       .learningRateDecayPolicy(LearningRatePolicy.Sigmoid).lrPolicyDecayRate(0.1).lrPolicySteps(10)
       .weightInit(WeightInit.XAVIER)
@@ -136,9 +136,9 @@ object Driver {
     //model.setListeners(new HistogramIterationListener(1))
     (0 until nEpochs).foreach { i =>
       model.fit(data._1)
-      println("********************************************************")
-      println(s"*** Completed epoch ${i} with score ${model.score()}***")
-      println("********************************************************")
+      println("*******************************************************")
+      println(s"*** Completed epoch ${i} with score ${model.score()} ***")
+      println("*******************************************************")
     }
 
     println("Evaluate model....")
