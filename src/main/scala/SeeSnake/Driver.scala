@@ -17,6 +17,7 @@ import org.deeplearning4j.nn.multilayer.MultiLayerNetwork
 import org.deeplearning4j.nn.weights.WeightInit
 import org.nd4j.linalg.api.buffer.DataBuffer
 import org.nd4j.linalg.api.buffer.util.DataTypeUtil
+import org.nd4j.linalg.dataset.api.iterator.DataSetIterator
 import org.nd4j.linalg.factory.Nd4j
 import org.nd4j.linalg.lossfunctions.LossFunctions
 
@@ -46,7 +47,7 @@ object Driver {
       .iterations(iterations)
       .regularization(true).l2(0.0005)
       .learningRate(learnRate)
-      //.learningRateDecayPolicy(LearningRatePolicy.Score).lrPolicyDecayRate(0.1)
+      .learningRateDecayPolicy(LearningRatePolicy.Sigmoid).lrPolicyDecayRate(0.1).lrPolicySteps(10)
       .weightInit(WeightInit.XAVIER)
       .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
       .updater(Updater.NESTEROVS).momentum(0.9)
@@ -54,15 +55,15 @@ object Driver {
 
       //TODO please add a .name() to each layer so we know what is going on where
       .layer(0, new ConvolutionLayer.Builder(3, 3)
-        //nIn and nOut specify depth. nIn here is the nChannels and nOut is the # of filters to be applied
-        .nIn(nChannels)
-        .stride(1, 1)
-        .padding(2,2)
-        .nOut(32)
-        .activation("relu")
-        .dropOut(dropOutRetainProbability)
-        .build()
-      )
+      //nIn and nOut specify depth. nIn here is the nChannels and nOut is the # of filters to be applied
+      .nIn(nChannels)
+      .stride(1, 1)
+      .padding(2, 2)
+      .nOut(32)
+      .activation("relu")
+      .dropOut(dropOutRetainProbability)
+      .build()
+    )
 
       .layer(1, new SubsamplingLayer.Builder(SubsamplingLayer.PoolingType.MAX)
         .kernelSize(2, 2)
@@ -86,7 +87,7 @@ object Driver {
       )
 
       .layer(4, new ConvolutionLayer.Builder(3, 3)
-        .stride(1,1)
+        .stride(1, 1)
         .nOut(128)
         .activation("relu")
         .dropOut(dropOutRetainProbability)
@@ -122,19 +123,19 @@ object Driver {
 
     new ConvolutionLayerSetup(builder, 32, 32, 3)
 
-    val data = ImagePipeline.pipeline("/media/brad/disk2/cifar10/train")
+    val trainData = ImagePipeline.pipeline("/media/brad/disk2/dataset/train")
 
     val esConf = new EarlyStoppingConfiguration.Builder()
       .epochTerminationConditions(new ScoreImprovementEpochTerminationCondition(2))
       .iterationTerminationConditions(new MaxTimeIterationTerminationCondition(10, TimeUnit.HOURS))
-      .scoreCalculator(new DataSetLossCalculator(data._2, true))
+      .scoreCalculator(new DataSetLossCalculator(trainData._2, true))
       .evaluateEveryNEpochs(1)
       .modelSaver(new LocalFileModelSaver("/home/brad/Documents/InteliJProjects/see-snake/"))
       .build()
 
     val conf: MultiLayerConfiguration = builder.build()
 
-    val trainer = new EarlyStoppingTrainer(esConf, conf, data._1)
+    val trainer = new EarlyStoppingTrainer(esConf, conf, trainData._1)
 
     println("Train model....")
     val result = trainer.fit()
@@ -147,15 +148,5 @@ object Driver {
 
     val bestModel: MultiLayerNetwork = result.getBestModel
 
-    println("Evaluate model....")
-    val eval = new Evaluation(outputNum)
-    while (data._2.hasNext) {
-      val ds = data._2.next()
-      val output = bestModel.output(ds.getFeatureMatrix, false)
-      eval.eval(ds.getLabels, output)
-    }
-    println(eval.stats())
-    data._2.reset()
   }
-
 }
