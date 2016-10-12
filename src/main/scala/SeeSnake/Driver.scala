@@ -15,6 +15,7 @@ import org.deeplearning4j.nn.conf.layers.{ConvolutionLayer, DenseLayer, OutputLa
 import org.deeplearning4j.nn.conf.{LearningRatePolicy, MultiLayerConfiguration, NeuralNetConfiguration, Updater}
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork
 import org.deeplearning4j.nn.weights.WeightInit
+import org.deeplearning4j.optimize.listeners.ScoreIterationListener
 import org.nd4j.linalg.api.buffer.DataBuffer
 import org.nd4j.linalg.api.buffer.util.DataTypeUtil
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator
@@ -123,30 +124,30 @@ object Driver {
 
     new ConvolutionLayerSetup(builder, 32, 32, 3)
 
-    val trainData = ImagePipeline.pipeline("/media/brad/disk2/dataset/train")
-
-    val esConf = new EarlyStoppingConfiguration.Builder()
-      .epochTerminationConditions(new ScoreImprovementEpochTerminationCondition(2))
-      .iterationTerminationConditions(new MaxTimeIterationTerminationCondition(10, TimeUnit.HOURS))
-      .scoreCalculator(new DataSetLossCalculator(trainData._2, true))
-      .evaluateEveryNEpochs(1)
-      .modelSaver(new LocalFileModelSaver("/home/brad/Documents/InteliJProjects/see-snake/"))
-      .build()
+    val data = ImagePipeline.pipeline("/media/brad/disk2/dataset/train")
 
     val conf: MultiLayerConfiguration = builder.build()
 
-    val trainer = new EarlyStoppingTrainer(esConf, conf, trainData._1)
+    val model: MultiLayerNetwork = new MultiLayerNetwork(conf)
+    model.init()
 
     println("Train model....")
-    val result = trainer.fit()
+    model.setListeners(new ScoreIterationListener(1))
+    //model.setListeners(new HistogramIterationListener(1))
+    (0 until nEpochs).foreach { i =>
+      model.fit(data._1)
+      println("*** Completed epoch {} ***", i)
 
-    println("Termination reason: " + result.getTerminationReason)
-    println("Termination details: " + result.getTerminationDetails)
-    println("Total epochs: " + result.getTotalEpochs)
-    println("Best epoch number: " + result.getBestModelEpoch)
-    println("Score at best epoch: " + result.getBestModelScore)
-
-    val bestModel: MultiLayerNetwork = result.getBestModel
+      println("Evaluate model....")
+      val eval = new Evaluation(outputNum)
+      while (data._2.hasNext) {
+        val ds = data._2.next()
+        val output = model.output(ds.getFeatureMatrix, false)
+        eval.eval(ds.getLabels, output)
+      }
+      println(eval.stats())
+      data._2.reset()
+    }
 
   }
 }
