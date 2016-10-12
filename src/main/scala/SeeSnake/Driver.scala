@@ -51,7 +51,7 @@ object Driver {
       .learningRateDecayPolicy(LearningRatePolicy.Sigmoid).lrPolicyDecayRate(0.1).lrPolicySteps(10)
       .weightInit(WeightInit.XAVIER)
       .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
-      .updater(Updater.NESTEROVS).momentum(0.9)
+      .updater(Updater.NESTEROVS).momentum(0.5)
       .list()
 
       //TODO please add a .name() to each layer so we know what is going on where
@@ -136,7 +136,9 @@ object Driver {
     //model.setListeners(new HistogramIterationListener(1))
     (0 until nEpochs).foreach { i =>
       model.fit(data._1)
-      println(s"*** Completed epoch ${i} ***")
+      println("********************************************************")
+      println(s"*** Completed epoch ${i} with score ${model.score()}***")
+      println("********************************************************")
     }
 
     println("Evaluate model....")
