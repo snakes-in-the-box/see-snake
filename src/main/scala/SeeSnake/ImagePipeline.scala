@@ -33,7 +33,7 @@ object ImagePipeline {
       val filesInDir: FileSplit = new FileSplit(parentDir, allowedExtensions, randNumGen)
       val labelMaker: ParentPathLabelGenerator = new ParentPathLabelGenerator()
       val pathFilter: BalancedPathFilter = new BalancedPathFilter(randNumGen, allowedExtensions, labelMaker)
-      val filesInDirSplit: Array[InputSplit] = filesInDir.sample(pathFilter, 80, 20)
+      val filesInDirSplit: Array[InputSplit] = filesInDir.sample(pathFilter, 90, 10)
       val trainData: InputSplit = filesInDirSplit(0)
       val testData: InputSplit = filesInDirSplit(1)
       val recordTest: ImageRecordReader = new ImageRecordReader(height, width, channels, labelMaker)
