@@ -103,7 +103,6 @@ object Driver {
 
     val data = ImagePipeline.pipeline("C:/Users/Brent/Documents/School/DataPrac/cifar10/train/")
 
-    /*
     println("Train model....")
     model.setListeners(new ScoreIterationListener(1))
     //model.setListeners(new HistogramIterationListener(1))
@@ -112,19 +111,21 @@ object Driver {
       println("*** Completed epoch {} ***", i)
 
 
+      /*
       val modelFile = new File("C:/Users/Brent/Documents/School/DataPrac/model.bin")
       val fos = new FileOutputStream(modelFile)
 
       ModelSerializer.writeModel(model, fos, true)
-    */
-
-    println("Load model")
-    val fis = new FileInputStream("C:/Users/Brent/Documents/School/DataPrac/model.bin")
-
-    val network = ModelSerializer.restoreMultiLayerNetwork(fis)
-    network.setConf(model.conf())
 
 
+
+      println("Load model")
+      val fis = new FileInputStream("C:/Users/Brent/Documents/School/DataPrac/model.bin")
+
+      val network = ModelSerializer.restoreMultiLayerNetwork(fis)
+      network.setConf(model.conf())
+      */
+    }
       println("Evaluate model....")
       val eval = new Evaluation(outputNum)
       while (data._2.hasNext) {
@@ -136,6 +137,5 @@ object Driver {
       data._2.reset()
     }
     println("****************Example finished********************")
-  //}
 
 }
