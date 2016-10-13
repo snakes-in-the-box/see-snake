@@ -27,30 +27,25 @@ object ImagePipeline {
   protected val channels = 3
   protected val outputNum = 10
 
-  def pipeline(path:String, train:Boolean):DataSetIterator ={
+  def pipeline(trainPath:String, testPath:String):(DataSetIterator, DataSetIterator) ={
     try {
-      if (!train) {
-        val parentDir: File = new File(path)
-        val filesInDir: FileSplit = new FileSplit(parentDir, allowedExtensions)
-        val labelMaker: ParentPathLabelGenerator = new ParentPathLabelGenerator()
-        val record: ImageRecordReader = new ImageRecordReader(height, width, channels, labelMaker)
-        record.initialize(filesInDir)
-        val data: DataSetIterator = new RecordReaderDataSetIterator(record, 10, 1, outputNum)
+      val testParentDir: File = new File(testPath)
+      val testFilesInDir: FileSplit = new FileSplit(testParentDir, allowedExtensions)
+      val labelMaker: ParentPathLabelGenerator = new ParentPathLabelGenerator()
+      val pathFilter: BalancedPathFilter = new BalancedPathFilter(randNumGen, allowedExtensions, labelMaker)
+      val testFilesInDirSplit: Array[InputSplit] = testFilesInDir.sample(pathFilter, 100, 0)
+      val testRecord: ImageRecordReader = new ImageRecordReader(height, width, channels, labelMaker)
+      testRecord.initialize(testFilesInDirSplit(0))
+      val testData: DataSetIterator = new RecordReaderDataSetIterator(testRecord, 10, 1, outputNum)
 
+      val trainParentDir: File = new File(trainPath)
+      val trainFilesInDir: FileSplit = new FileSplit(trainParentDir, allowedExtensions)
+      val trainFilesInDirSplit: Array[InputSplit] = trainFilesInDir.sample(pathFilter, 100, 0)
+      val trainRecord: ImageRecordReader = new ImageRecordReader(height, width, channels, labelMaker)
+      trainRecord.initialize(trainFilesInDirSplit(0))
+      val trainData: DataSetIterator = new RecordReaderDataSetIterator(trainRecord, 10, 1, outputNum)
 
-        data
-      }
-      else {
-        val parentDir: File = new File(path)
-        val filesInDir: FileSplit = new FileSplit(parentDir, allowedExtensions)
-        val labelMaker: ParentPathLabelGenerator = new ParentPathLabelGenerator()
-        val pathFilter: BalancedPathFilter = new BalancedPathFilter(randNumGen, allowedExtensions, labelMaker)
-        val filesInDirSplit: Array[InputSplit] = filesInDir.sample(pathFilter, 100, 0)
-        val record: ImageRecordReader = new ImageRecordReader(height, width, channels, labelMaker)
-        record.initialize(filesInDirSplit(0))
-        val data: DataSetIterator = new RecordReaderDataSetIterator(record, 10, 1, outputNum)
-        data
-      }
+      (trainData, testData)
     }catch {
       case ex:Exception => println(ex.toString)
         System.exit(-1)

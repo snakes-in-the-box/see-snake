@@ -103,17 +103,17 @@ object Driver {
     model.init()
 
 
-    val data = ImagePipeline.pipeline("C:/Users/Brent/Documents/School/DataPrac/cifar10/train/", true)
+    val data = ImagePipeline.pipeline("C:/Users/Brent/Documents/School/DataPrac/cifar10/train/", "C:/Users/Brent/Documents/School/DataPrac/cifar10/test/")
 
     println("Train model....")
-    //model.setListeners(new ScoreIterationListener(1))
-    /*/model.setListeners(new HistogramIterationListener(1))
+    model.setListeners(new ScoreIterationListener(1))
+    //model.setListeners(new HistogramIterationListener(1))
     (0 until nEpochs).foreach { i =>
       model.fit(data._1)
       println("*** Completed epoch {} ***", i)
 
 
-
+      /*
       val modelFile = new File("C:/Users/Brent/Documents/School/DataPrac/model.bin")
       val fos = new FileOutputStream(modelFile)
 
@@ -126,25 +126,25 @@ object Driver {
 
       val network = ModelSerializer.restoreMultiLayerNetwork(fis)
       network.setConf(model.conf())
+      */
+    }
 
-    }*/
-
-    val dataTest = ImagePipeline.pipeline("C:/Users/Brent/Documents/School/DataPrac/cifar10/testtest/", false)
+    //val dataTest = ImagePipeline.pipeline("C:/Users/Brent/Documents/School/DataPrac/cifar10/testtest/", false)
 
       println("Evaluate model....")
-      /*val eval = new Evaluation(outputNum)
-      while (dataTest._1.hasNext) {
-        val ds = dataTest._1.next()
-        //val output = model.output(ds.getFeatureMatrix, false)
-        println(ds.getLabels)
-        //for (pred <- model.predict(ds.getFeatureMatrix)) {
+      val eval = new Evaluation(outputNum)
+      while (data._2.hasNext) {
+        val ds = data._2.next()
+        val output = model.output(ds.getFeatureMatrix, false)
+          //println(ds.getLabels)
+          //for (pred <- model.predict(ds.getFeatureMatrix)) {
           //println(pred)
-        }//for
-        //eval.eval(ds.getLabels, output)
-      }*/
-      //println(eval.stats())
-    println(data.next().getLabelNames() + "\n" + data.next().getLabels)
-    println(dataTest.getLabels + "\n" + dataTest.next().getLabels)
+          //}
+        eval.eval(ds.getLabels, output)
+      }
+      println(eval.stats())
+    //println(data._1.getLabels + "\n" + data._1.next().getFeatures)
+    //println(data._2.getLabels + "\n" + data._2.next().getFeatures)
       //data._2.reset()
     }
     //println("****************Example finished********************")
