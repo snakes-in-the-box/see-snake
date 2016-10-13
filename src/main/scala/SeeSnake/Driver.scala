@@ -103,7 +103,7 @@ object Driver {
     model.init()
 
 
-    val data = ImagePipeline.pipeline("C:/Users/Brent/Documents/School/DataPrac/cifar10/train/")
+    val data = ImagePipeline.pipeline("C:/Users/Brent/Documents/School/DataPrac/cifar10/train/", true)
 
     println("Train model....")
     //model.setListeners(new ScoreIterationListener(1))
@@ -129,7 +129,7 @@ object Driver {
 
     }*/
 
-    val dataTest = ImagePipeline.pipeline("C:/Users/Brent/Documents/School/DataPrac/cifar10/testtest/")
+    val dataTest = ImagePipeline.pipeline("C:/Users/Brent/Documents/School/DataPrac/cifar10/testtest/", false)
 
       println("Evaluate model....")
       /*val eval = new Evaluation(outputNum)
